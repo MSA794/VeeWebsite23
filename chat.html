@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>دردشة Vee — المساعد الذكي</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="vee-bg">
+  <div class="overlay"></div>
+  <header class="site-header">
+    <div class="container">
+      <div class="brand"><div class="logo">V</div><div class="site-name glow">Vee</div></div>
+      <div class="actions"><a href="/dashboard.html" class="btn">لوحتي</a> <a href="/index.html" class="btn">الرئيسية</a></div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:40px;padding-bottom:80px">
+    <div class="card" style="max-width:900px;margin:20px auto;">
+      <h2 style="text-align:center">المحادثة مع المساعد الذكي</h2>
+      <div id="modeSwitch" style="text-align:center;margin-bottom:10px">
+        <button id="modeGeneral" class="btn">مساعد عام</button>
+        <button id="modeTools" class="btn">مساعد الأدوات</button>
+      </div>
+      <div id="chatWindow" class="card" style="height:400px;overflow:auto;background:rgba(0,0,0,0.6);padding:12px"></div>
+      <div class="assistant-input" style="margin-top:12px;display:flex;gap:8px">
+        <input id="chatMessage" class="input" placeholder="اكتب سؤالك هنا..." />
+        <select id="toolSelect" class="input" style="width:200px;display:none">
+          <option value="">اختر أداة/قسم (لمساعد الأدوات)</option>
+        </select>
+        <button id="sendChat" class="btn primary">أرسل</button>
+      </div>
+      <p style="margin-top:10px;color:var(--gold);font-size:13px">🔒 التواصل عبر جسر آمن — اضبط AI_BRIDGE_URL و OPENAI_KEY على الخادم.</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">⚜️ جميع الحقوق محفوظة — المطور MASD © 2025 ⚜️</footer>
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/ai_bridge.js"></script>
+  <script>
+  (function(){
+    const chatWindow = document.getElementById('chatWindow');
+    const input = document.getElementById('chatMessage');
+    const btn = document.getElementById('sendChat');
+    const modeGeneral = document.getElementById('modeGeneral');
+    const modeTools = document.getElementById('modeTools');
+    const toolSelect = document.getElementById('toolSelect');
+    let mode = 'general';
+    if(window.veeSections && Array.isArray(window.veeSections)){
+      window.veeSections.forEach(s=>{
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.innerText = s.name;
+        toolSelect.appendChild(opt);
+        if(s.subsections && s.subsections.length){
+          s.subsections.forEach(sub=>{
+            const opt2 = document.createElement('option');
+            opt2.value = s.id + '::' + sub.id;
+            opt2.innerText = s.name + ' — ' + sub.name;
+            toolSelect.appendChild(opt2);
+          });
+        }
+      });
+    }
+    modeGeneral.addEventListener('click', ()=>{ mode='general'; toolSelect.style.display='none'; modeGeneral.classList.add('primary'); modeTools.classList.remove('primary'); });
+    modeTools.addEventListener('click', ()=>{ mode='tools'; toolSelect.style.display='inline-block'; modeTools.classList.add('primary'); modeGeneral.classList.remove('primary'); });
+    function addMsg(role, text){
+      const d = document.createElement('div');
+      d.className = 'msg ' + (role==='user'?'user':'bot');
+      d.style.marginBottom='8px';
+      d.innerText = text;
+      chatWindow.appendChild(d);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+    btn.addEventListener('click', async ()=>{
+      const t = input.value.trim(); if(!t) return;
+      const selectedTool = toolSelect.value || '';
+      addMsg('user', (selectedTool? '['+selectedTool+'] ':'') + t);
+      input.value='';
+      addMsg('bot', 'جارٍ التفكير...');
+      try{
+        const payload = { message: t, mode: mode, tool: selectedTool };
+        const res = await window.callAIBridge ? await window.callAIBridge(payload) : null;
+        const reply = res && res.reply ? res.reply : (res && res.error ? ('خطأ: '+res.error) : 'الجسر غير مكوّن');
+        const msgs = chatWindow.querySelectorAll('.msg.bot');
+        if(msgs.length) msgs[msgs.length-1].remove();
+        addMsg('bot', reply);
+      }catch(e){
+        const msgs = chatWindow.querySelectorAll('.msg.bot');
+        if(msgs.length) msgs[msgs.length-1].remove();
+        addMsg('bot', 'تعذر الاتصال بالمساعد. تحقق من إعداد AI_BRIDGE_URL و OPENAI_KEY.');
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

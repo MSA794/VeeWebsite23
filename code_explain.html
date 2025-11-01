@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>شرح الأكواد - Vee</title><link rel="stylesheet" href="assets/css/style.css"></head>
+<body class="vee-bg"><div class="overlay"></div>
+<header class="site-header"><div class="container"><div class="brand"><div class="logo">V</div><div class="site-name">Vee</div></div></div></header>
+<main class="container">
+  <div class="card">
+    <h3>قارئ الأكواد الذكي</h3>
+    <p>الصق الكود هنا واختر اللغة (أو اتركها تلقائية).</p>
+    <label>اللغة<select id="codeLang" class="input"><option value="">تلقائي</option><option value="python">Python</option><option value="javascript">JavaScript</option><option value="html">HTML</option><option value="css">CSS</option></select></label>
+    <label>الكود<textarea id="codeInput" class="input" rows="12"></textarea></label>
+    <div class="row"><button id="explainBtn" class="btn primary">اشرح الكود</button><button id="voiceExplain" class="btn">شرح صوتي</button></div>
+    <h4>الشرح</h4>
+    <div id="explainOutput" class="card" style="white-space:pre-wrap"></div>
+  </div>
+</main>
+<footer class="site-footer">⚜️ جميع الحقوق محفوظة — المطور MASD © 2025 ⚜️</footer>
+<div id="toast" class="toast hidden"></div>
+<script src="assets/js/main_v4.js"></script><script src="assets/js/ai_bridge.js"></script>
+</body></html>
